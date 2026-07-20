@@ -114,10 +114,12 @@ autoc_total   <- auc_trapezoid(N_PCT:1, cu$total_cate   - cu$total_cate[1])
 tc <- cross_threshold(cu, "chronic_cate", TARGET_CHRONIC)
 tt <- cross_threshold(cu, "total_cate",   TARGET_TOTAL)
 
-sc <- if (tc["crossed"] == 1) eval_subgroups(al, tc["thr"], "chronic")
-      else c(above = NA, below = NA, diff = NA, n_above = NA, n_below = NA)
-st <- if (tt["crossed"] == 1) eval_subgroups(al, tt["thr"], "total")
-      else c(above = NA, below = NA, diff = NA, n_above = NA, n_below = NA)
+sc <- if (tc["crossed"] == 1) {
+  eval_subgroups(al, tc["thr"], "chronic")
+} else c(above = NA, below = NA, diff = NA, n_above = NA, n_below = NA)
+st <- if (tt["crossed"] == 1) {
+  eval_subgroups(al, tt["thr"], "total")
+} else c(above = NA, below = NA, diff = NA, n_above = NA, n_below = NA)
 
 cat("================  PART 1: full-data point estimates  ================\n")
 cat(sprintf("AUTOC(UACR) chronic slope : %.3f\n", autoc_chronic))
