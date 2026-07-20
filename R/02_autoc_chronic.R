@@ -91,14 +91,23 @@ cohorts <- list(
   MDRD   = filter(analysis_long, trial == "MDRD")
 )
 
+# Percentile depth per cohort. The deepest subgroups still converge at 90, but
+# the smaller trials (ACCORD, MDRD) are capped at 85 so the extreme-percentile
+# ATEs are less noisy. NOTE: AUTOC magnitude scales with this depth, so scores
+# are directly comparable ACROSS COVARIATES within a cohort (same depth), but
+# not across cohorts that use different depths.
+cohort_npct <- c(Pooled = 90, SPRINT = 90, ACCORD = 85, AASK = 90, MDRD = 85)
+
 autoc_rows  <- list()
 ate_rows    <- list()
 curves      <- list()   # kept in memory for later plotting
 
 for (cname in names(cohorts)) {
-  df <- cohorts[[cname]]
+  df    <- cohorts[[cname]]
+  n_pct <- cohort_npct[[cname]]
   cat("\n=====================  ", cname,
-      "  (n =", n_distinct(df$id), "patients)  =====================\n")
+      "  (n =", n_distinct(df$id), "patients, depth =", n_pct,
+      "pct)  =====================\n")
 
   ate <- overall_chronic_ate(df)
   cat(sprintf("Overall chronic ATE: %.3f  (control %.3f, treatment %.3f) mL/min/1.73m2/yr\n",
@@ -106,12 +115,12 @@ for (cname in names(cohorts)) {
   ate_rows[[cname]] <- data.frame(cohort = cname, t(ate))
 
   for (bm in c("egfr", "uacr", "kfre")) {
-    res <- compute_autoc(df, bm)
+    res <- compute_autoc(df, bm, n_pct = n_pct)
     cat(sprintf("  AUTOC[%-4s] = %s\n", bm,
                 ifelse(is.na(res$auc), "NA (too few patients)",
                        sprintf("%.3f", res$auc))))
     autoc_rows[[paste(cname, bm)]] <-
-      data.frame(cohort = cname, covariate = bm, autoc = res$auc)
+      data.frame(cohort = cname, covariate = bm, n_pct = n_pct, autoc = res$auc)
     curves[[paste(cname, bm)]] <- res$curve
   }
 }

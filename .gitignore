@@ -2,3 +2,18 @@
 .Rhistory
 .RData
 .Ruserdata
+.DS_Store
+
+# IRB: patient-derived data must NEVER be pushed to GitHub.
+# Files stay local in data/raw/ but are git-ignored.
+data/raw/
+data/**/*.xlsx
+data/**/*.csv
+data/**/*.sas7bdat
+
+# Analysis outputs (regenerable; may contain bootstrap of patient data)
+results/
+figures/*.png
+figures/*.jpeg
+figures/*.jpg
+figures/*.pdf
